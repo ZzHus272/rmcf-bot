@@ -1027,6 +1027,7 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbyBeh0UWM1GoqAy4vvsIJx5
 // ══════════════════════════════════════════════════════════════
 let session = null;        // { telegramId, telegram, firstName, lastName, patronymic }
 let myCompanies = [];
+let telegramAuthStarted = false;
 let allPublicCompanies = [];
 let adminCompanies = [];
 let adminUsers = [];
@@ -1063,6 +1064,9 @@ function showScreen(id) {
 // TELEGRAM AUTO-AUTH
 // ══════════════════════════════════════════════════════════════
 function initTelegramAuth() {
+  if (telegramAuthStarted) return;
+  telegramAuthStarted = true;
+
   const tg = window.Telegram && window.Telegram.WebApp;
 
   if (!tg || !tg.initDataUnsafe || !tg.initDataUnsafe.user) {
@@ -1086,7 +1090,7 @@ async function tgLoginFlow(telegramId, telegram) {
   try {
     const data = await api({ action: 'tgLogin', telegramId, telegram });
     session = {
-      telegramId: data.telegramId,
+      telegramId: String(data.telegramId || telegramId),
       telegram: data.telegram,
       firstName: data.firstName,
       lastName: data.lastName,
@@ -1161,7 +1165,7 @@ async function loadMyCompanies() {
   document.getElementById('companies-list').innerHTML =
     '<div class="loading-center"><div class="spinner"></div></div>';
   try {
-    myCompanies = await api({ action: 'getMyCompanies', telegramID: session.telegramID, password: session.password });
+    myCompanies = await api({ action: 'getMyCompanies', telegramId: session.telegramId });
     renderMyCompanies();
   } catch(e) {
     document.getElementById('companies-list').innerHTML =
@@ -1293,8 +1297,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   loadSession();
-  if (session) enterDashboard();
 });
+window.addEventListener('load', initTelegramAuth);
 
 function addStaffTag(val) {
   val = val.trim().toLowerCase().replace('@','').replace(',','');
@@ -1454,7 +1458,7 @@ async function doEditCompany() {
     licenses:        document.getElementById('edit-licenses').value.trim(),
   };
   try {
-    await api({ action: 'updateCompany', telegram: session.telegram, password: session.password, companyId: editTargetId, updates });
+    await api({ action: 'updateCompany', telegramId: session.telegramId, companyId: editTargetId, updates });
     closeModal('modal-view');
     toast('Company updated', 'success');
     loadMyCompanies();
@@ -1481,7 +1485,7 @@ function openDeleteModal(id) {
 async function confirmDelete() {
   if (!deleteTargetId) return;
   try {
-    const result = await api({ action: 'deleteCompany', telegram: session.telegram, password: session.password, companyId: deleteTargetId });
+    const result = await api({ action: 'deleteCompany', telegramId: session.telegramId, companyId: deleteTargetId });
     closeModal('modal-delete');
     toast('Company deactivated. Registry record remains.', 'success');
     deleteTargetId = null;
