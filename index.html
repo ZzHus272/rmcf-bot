@@ -1,0 +1,1741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>RMCF — Business Registry</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+/* ── Reset & Base ────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy:   #0D1B2A;
+  --ink:    #1A2E45;
+  --blue:   #1B4F8A;
+  --mid:    #2563A8;
+  --accent: #3B82C4;
+  --steel:  #5B8DB8;
+  --fog:    #A8C4DD;
+  --paper:  #EDF4FB;
+  --white:  #F7FAFD;
+
+  --text-primary:   #EDF4FB;
+  --text-secondary: #8AACCA;
+  --text-muted:     #5B8DB8;
+
+  --border:    rgba(91,141,184,0.25);
+  --border-hi: rgba(91,141,184,0.5);
+
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'Inter', sans-serif;
+
+  --r: 4px;
+  --gap: 16px;
+}
+
+html, body {
+  height: 100%;
+  background: var(--navy);
+  color: var(--text-primary);
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+/* ── Layout ──────────────────────────────────────────────────── */
+#app {
+  max-width: 480px;
+  min-height: 100vh;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.screen {
+  display: none;
+  flex: 1;
+  flex-direction: column;
+  animation: fadeIn 0.18s ease;
+}
+.screen.active { display: flex; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Header ──────────────────────────────────────────────────── */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px var(--gap) 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--ink);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.logo-mark {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.logo-text {
+  font-family: var(--mono);
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--white);
+}
+.logo-tag {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.topbar-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* ── Buttons ─────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border: 1px solid transparent;
+  border-radius: var(--r);
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.14s;
+  white-space: nowrap;
+  text-decoration: none;
+  letter-spacing: 0.01em;
+}
+.btn:active { transform: scale(0.97); }
+
+.btn-primary {
+  background: var(--blue);
+  border-color: var(--mid);
+  color: var(--white);
+}
+.btn-primary:hover { background: var(--mid); }
+
+.btn-secondary {
+  background: transparent;
+  border-color: var(--border-hi);
+  color: var(--fog);
+}
+.btn-secondary:hover { border-color: var(--steel); color: var(--white); }
+
+.btn-danger {
+  background: transparent;
+  border-color: rgba(220,60,60,0.4);
+  color: #e07070;
+}
+.btn-danger:hover { background: rgba(220,60,60,0.12); }
+
+.btn-ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--text-secondary);
+  padding: 8px 10px;
+}
+.btn-ghost:hover { color: var(--white); }
+
+.btn-full { width: 100%; }
+
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+
+/* ── Forms ───────────────────────────────────────────────────── */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 14px;
+}
+
+label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+input, select, textarea {
+  background: var(--ink);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  color: var(--text-primary);
+  font-family: var(--sans);
+  font-size: 14px;
+  padding: 10px 12px;
+  transition: border-color 0.12s;
+  outline: none;
+  width: 100%;
+  appearance: none;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--accent);
+}
+input::placeholder, textarea::placeholder {
+  color: var(--text-muted);
+}
+select option { background: var(--ink); }
+textarea { resize: vertical; min-height: 70px; }
+
+.form-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* Address multi-input */
+.multi-input-list { display: flex; flex-direction: column; gap: 6px; }
+.multi-input-row { display: flex; gap: 6px; }
+.multi-input-row input { flex: 1; }
+.multi-input-row .btn-ghost { flex-shrink: 0; padding: 8px; font-size: 16px; line-height: 1; }
+
+/* Staff tags */
+.tag-input-container { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; background: var(--ink); border: 1px solid var(--border); border-radius: var(--r); }
+.tag-input-container:focus-within { border-color: var(--accent); }
+.tag { display: flex; align-items: center; gap: 4px; background: rgba(59,130,196,0.2); border: 1px solid rgba(59,130,196,0.4); border-radius: 2px; padding: 2px 7px; font-size: 12px; font-family: var(--mono); }
+.tag-remove { cursor: pointer; color: var(--text-muted); font-size: 14px; line-height: 1; }
+.tag-remove:hover { color: #e07070; }
+.tag-text-input { background: transparent; border: none; outline: none; color: var(--text-primary); font-size: 13px; min-width: 80px; flex: 1; padding: 2px; }
+
+/* Checkboxes for licenses */
+.checkbox-group { display: flex; flex-direction: column; gap: 8px; }
+.checkbox-item { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.checkbox-item input[type=checkbox] { width: 16px; height: 16px; flex-shrink: 0; accent-color: var(--accent); }
+.checkbox-item span { font-size: 13px; color: var(--text-primary); }
+
+/* ── Scroll container ────────────────────────────────────────── */
+.scroll-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--gap);
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── Landing / Auth screen ───────────────────────────────────── */
+#screen-landing {
+  background: var(--navy);
+}
+
+.landing-hero {
+  padding: 48px var(--gap) 32px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+
+.landing-logo {
+  display: inline-block;
+  margin-bottom: 20px;
+}
+
+.landing-logo-box {
+  width: 64px;
+  height: 64px;
+  background: var(--blue);
+  border: 2px solid var(--mid);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+}
+
+.landing-logo-box span {
+  font-family: var(--mono);
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--white);
+  letter-spacing: 0.05em;
+}
+
+.landing-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--white);
+  letter-spacing: -0.01em;
+  margin-bottom: 6px;
+}
+
+.landing-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-family: var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.auth-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  background: var(--ink);
+}
+.auth-tab {
+  flex: 1;
+  padding: 12px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.12s;
+  background: transparent;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  border-radius: 0;
+}
+.auth-tab.active {
+  color: var(--white);
+  border-bottom-color: var(--accent);
+}
+
+.auth-panel { display: none; }
+.auth-panel.active { display: block; }
+
+/* ── Dashboard ───────────────────────────────────────────────── */
+.dash-welcome {
+  padding: 16px var(--gap) 0;
+  margin-bottom: 4px;
+}
+.dash-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--white);
+}
+.dash-handle {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.section-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  padding-top: 4px;
+}
+
+.company-card {
+  background: var(--ink);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 14px;
+  margin-bottom: 10px;
+}
+.company-card:last-child { margin-bottom: 0; }
+
+.company-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.company-shortname {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  background: rgba(59,130,196,0.12);
+  padding: 2px 7px;
+  border: 1px solid rgba(59,130,196,0.3);
+}
+
+.company-status {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+.company-status.active { color: #5ab87a; }
+.company-status.inactive { color: #e07070; }
+
+.company-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--white);
+  margin-bottom: 2px;
+}
+.company-latin {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+}
+
+.company-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  font-size: 12px;
+  margin-bottom: 12px;
+}
+.company-meta-item { color: var(--text-secondary); }
+.company-meta-item strong { color: var(--text-primary); display: block; font-size: 11px; font-weight: 500; }
+
+.company-actions {
+  display: flex;
+  gap: 6px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+}
+.empty-state p { margin-bottom: 16px; font-size: 13px; }
+
+/* ── Modal ───────────────────────────────────────────────────── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(13,27,42,0.85);
+  z-index: 100;
+  align-items: flex-end;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; animation: fadeIn 0.15s; }
+
+.modal {
+  background: var(--ink);
+  border: 1px solid var(--border);
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  width: 100%;
+  max-width: 480px;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.2s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(40px); opacity: 0.5; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.modal-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--white);
+}
+.modal-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 2px 6px;
+  line-height: 1;
+}
+.modal-close:hover { color: var(--white); }
+
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.modal-footer {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ── Confirm dialog ──────────────────────────────────────────── */
+.confirm-box {
+  background: var(--ink);
+  border: 1px solid rgba(220,60,60,0.35);
+  border-radius: var(--r);
+  padding: 20px;
+  margin: 40px 16px;
+  max-width: 440px;
+  width: calc(100% - 32px);
+}
+.confirm-box h3 { font-size: 15px; color: #e07070; margin-bottom: 8px; }
+.confirm-box p { font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; }
+.confirm-box .warning-note {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-style: italic;
+  padding: 8px 10px;
+  border-left: 2px solid var(--border-hi);
+  margin: 12px 0;
+}
+
+/* ── Toast ───────────────────────────────────────────────────── */
+#toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--ink);
+  border: 1px solid var(--border-hi);
+  color: var(--text-primary);
+  padding: 10px 18px;
+  border-radius: var(--r);
+  font-size: 13px;
+  z-index: 999;
+  transition: transform 0.22s ease;
+  white-space: nowrap;
+  max-width: calc(100vw - 32px);
+  white-space: normal;
+  text-align: center;
+}
+#toast.show { transform: translateX(-50%) translateY(0); }
+#toast.error { border-color: rgba(220,60,60,0.5); color: #e07070; }
+#toast.success { border-color: rgba(90,184,122,0.5); color: #5ab87a; }
+
+/* ── Spinner ─────────────────────────────────────────────────── */
+.spinner {
+  width: 18px; height: 18px;
+  border: 2px solid rgba(91,141,184,0.3);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.65s linear infinite;
+  display: inline-block;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loading-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+/* ── Info rows ───────────────────────────────────────────────── */
+.info-row {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.info-row:last-child { border-bottom: none; }
+.info-row-label {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-family: var(--mono);
+  color: var(--text-muted);
+}
+.info-row-value { font-size: 13px; color: var(--text-primary); }
+
+/* ── Fine warning ─────────────────────────────────────────────── */
+.fine-banner {
+  background: rgba(220,60,60,0.1);
+  border: 1px solid rgba(220,60,60,0.35);
+  border-radius: var(--r);
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  font-size: 13px;
+  color: #e07070;
+}
+
+/* ── Admin badge ─────────────────────────────────────────────── */
+.admin-badge {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: rgba(59,130,196,0.15);
+  border: 1px solid rgba(59,130,196,0.35);
+  padding: 2px 7px;
+  border-radius: 2px;
+}
+
+/* ── Admin table ─────────────────────────────────────────────── */
+.admin-table-wrap { overflow-x: auto; margin-bottom: 16px; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th {
+  text-align: left;
+  padding: 8px 10px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
+td {
+  padding: 9px 10px;
+  border-bottom: 1px solid rgba(91,141,184,0.1);
+  color: var(--text-primary);
+  vertical-align: top;
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(91,141,184,0.05); }
+
+/* ── Divider ─────────────────────────────────────────────────── */
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 20px 0;
+}
+
+/* ── Nav tabs (bottom-style) ─────────────────────────────────── */
+.bottom-nav {
+  display: flex;
+  border-top: 1px solid var(--border);
+  background: var(--ink);
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+}
+.nav-tab {
+  flex: 1;
+  padding: 12px 8px;
+  text-align: center;
+  font-size: 11px;
+  font-family: var(--mono);
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-top: 2px solid transparent;
+  transition: all 0.12s;
+  background: transparent;
+  border-bottom: none;
+  border-left: none;
+  border-right: none;
+  border-radius: 0;
+  text-transform: uppercase;
+}
+.nav-tab.active { color: var(--accent); border-top-color: var(--accent); }
+
+/* ── Sell rights notice ───────────────────────────────────────── */
+.notice-box {
+  background: rgba(27,79,138,0.18);
+  border: 1px solid rgba(59,130,196,0.25);
+  border-radius: var(--r);
+  padding: 10px 13px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 14px;
+}
+/* ── Telegram auth / loading screen ─────────────────────────── */
+.auth-loading {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 40px var(--gap);
+  text-align: center;
+}
+.auth-loading .spinner {
+  width: 28px; height: 28px;
+  border-width: 3px;
+}
+.auth-loading p {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-family: var(--mono);
+  letter-spacing: 0.04em;
+}
+.tg-error-box {
+  background: rgba(220,60,60,0.1);
+  border: 1px solid rgba(220,60,60,0.35);
+  border-radius: var(--r);
+  padding: 16px;
+  font-size: 13px;
+  color: #e07070;
+  text-align: left;
+  line-height: 1.6;
+}
+.welcome-line {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 18px;
+  line-height: 1.6;
+}
+
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ──────────────────────────────────────────────
+     SCREEN: LANDING / AUTH (Telegram auto-login)
+     ────────────────────────────────────────────── -->
+<div id="screen-landing" class="screen active">
+  <div class="landing-hero">
+    <div class="landing-logo">
+      <div class="landing-logo-box"><span>RMCF</span></div>
+    </div>
+    <div class="landing-title">Business Registry</div>
+    <div class="landing-sub">RMC en Franzengueric</div>
+  </div>
+
+  <!-- State 1: connecting to Telegram -->
+  <div id="auth-state-loading" class="auth-loading">
+    <div class="spinner"></div>
+    <p>Connecting to Telegram...</p>
+  </div>
+
+  <!-- State 2: opened outside Telegram -->
+  <div id="auth-state-error" class="auth-loading" style="display:none">
+    <div class="tg-error-box">
+      This app only works inside Telegram. Please open it through the bot's menu button, not in a regular browser.
+    </div>
+  </div>
+
+  <!-- State 3: first visit — collect in-game name (no password) -->
+  <div id="panel-onboard" class="scroll-body" style="display:none">
+    <div style="height:12px"></div>
+    <div class="welcome-line">Welcome! We just need your in-game name for the registry — this is shown once.</div>
+    <div class="form-group">
+      <label>In-game First Name</label>
+      <input id="ob-fn" type="text" placeholder="">
+    </div>
+    <div class="form-group">
+      <label>In-game Last Name</label>
+      <input id="ob-ln" type="text" placeholder="">
+    </div>
+    <div class="form-group">
+      <label>Patronymic <span style="font-weight:400;text-transform:none;font-size:10px">(optional)</span></label>
+      <input id="ob-pat" type="text" placeholder="">
+    </div>
+    <div style="height:4px"></div>
+    <button class="btn btn-primary btn-full" onclick="doCompleteProfile()">Continue</button>
+  </div>
+</div>
+
+
+<!-- ──────────────────────────────────────────────
+     SCREEN: DASHBOARD
+     ────────────────────────────────────────────── -->
+<div id="screen-dashboard" class="screen">
+  <div class="topbar">
+    <div class="logo-mark">
+      <div class="logo-text">RMCF</div>
+      <div class="logo-tag">Registry</div>
+    </div>
+    <div class="topbar-actions">
+      <span class="dash-handle" id="topbar-handle" style="font-size:11px"></span>
+    </div>
+  </div>
+
+  <div class="scroll-body" style="flex:1">
+    <div class="dash-welcome">
+      <div class="dash-name" id="dash-name">—</div>
+      <div class="dash-handle" id="dash-handle">—</div>
+    </div>
+
+    <div style="height:20px"></div>
+
+    <div class="section-label">Your Companies</div>
+    <div id="companies-list">
+      <div class="loading-center"><div class="spinner"></div></div>
+    </div>
+
+    <div style="height:16px"></div>
+    <button class="btn btn-primary btn-full" onclick="openCreateModal()">Register New Company</button>
+    <div style="height:24px"></div>
+
+    <div class="divider"></div>
+
+    <div class="section-label">Registry — All Active Companies</div>
+    <div id="public-list">
+      <div class="loading-center"><div class="spinner"></div></div>
+    </div>
+    <div style="height:32px"></div>
+  </div>
+</div>
+
+<!-- ──────────────────────────────────────────────
+     MODAL: CREATE COMPANY
+     ────────────────────────────────────────────── -->
+<div id="modal-create" class="modal-overlay" onclick="closeModalIfBg(event,'modal-create')">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Register Company</div>
+      <button class="modal-close" onclick="closeModal('modal-create')">&#215;</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="form-group">
+        <label>Original Business Name</label>
+        <input id="c-nameOriginal" type="text" placeholder="e.g. Горная Добыча">
+      </div>
+      <div class="form-group">
+        <label>Latin Name (required)</label>
+        <input id="c-nameLatin" type="text" placeholder="e.g. Gornaya Dobycha" autocapitalize="none">
+      </div>
+      <div class="form-group">
+        <label>Short Code (3–4 Latin letters)</label>
+        <input id="c-nameShort" type="text" placeholder="e.g. GDC" maxlength="4" autocapitalize="characters">
+        <div class="form-hint">Unique identifier in the registry</div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="form-group">
+        <label>Registered Address</label>
+        <input id="c-addressReg" type="text" placeholder="Legal registration address">
+      </div>
+
+      <div class="form-group">
+        <label>Physical Location(s)</label>
+        <div class="multi-input-list" id="address-list">
+          <div class="multi-input-row">
+            <input type="text" placeholder="Address of physical location" class="phys-addr">
+            <button class="btn btn-ghost" onclick="addAddressRow()">+</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="form-group">
+        <label>Starting Capital (min €100)</label>
+        <input id="c-capital" type="number" min="100" placeholder="100">
+      </div>
+
+      <div class="form-group">
+        <label>Field of Activity</label>
+        <select id="c-sphere">
+          <option value="">Select sphere...</option>
+          <option>Mining & Resources</option>
+          <option>Trade & Commerce</option>
+          <option>Construction</option>
+          <option>Agriculture</option>
+          <option>Manufacturing</option>
+          <option>Transport & Logistics</option>
+          <option>Finance & Banking</option>
+          <option>Hospitality & Food</option>
+          <option>Real Estate</option>
+          <option>Technology & Crafting</option>
+          <option>Security & Defense</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Staff (Telegram usernames)</label>
+        <div class="tag-input-container" id="staff-tags-container" onclick="document.getElementById('staff-input').focus()">
+          <input id="staff-input" class="tag-text-input" type="text" placeholder="@username, press Enter" autocapitalize="none">
+        </div>
+        <div class="form-hint">Press Enter or comma to add. Leave empty if no staff.</div>
+      </div>
+
+      <div class="form-group">
+        <label>Licenses</label>
+        <div class="checkbox-group">
+          <label class="checkbox-item"><input type="checkbox" value="Alcohol Sales License"> <span>Alcohol Sales License</span></label>
+          <label class="checkbox-item"><input type="checkbox" value="Banking License"> <span>Banking License</span></label>
+          <label class="checkbox-item"><input type="checkbox" value="Weapons Trade License"> <span>Weapons Trade License</span></label>
+          <label class="checkbox-item"><input type="checkbox" value="Export License"> <span>Export License</span></label>
+          <label class="checkbox-item"><input type="checkbox" value="Mining Concession"> <span>Mining Concession</span></label>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-create')">Cancel</button>
+      <button class="btn btn-primary" style="flex:1" onclick="doCreateCompany()">Submit Registration</button>
+    </div>
+  </div>
+</div>
+
+<!-- ──────────────────────────────────────────────
+     MODAL: VIEW / EDIT COMPANY
+     ────────────────────────────────────────────── -->
+<div id="modal-view" class="modal-overlay" onclick="closeModalIfBg(event,'modal-view')">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="view-modal-title">Company</div>
+      <button class="modal-close" onclick="closeModal('modal-view')">&#215;</button>
+    </div>
+    <div class="modal-body" id="view-modal-body">
+    </div>
+    <div class="modal-footer" id="view-modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-view')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ──────────────────────────────────────────────
+     MODAL: DELETE CONFIRM
+     ────────────────────────────────────────────── -->
+<div id="modal-delete" class="modal-overlay" onclick="closeModalIfBg(event,'modal-delete')">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" style="color:#e07070">Delete Company</div>
+      <button class="modal-close" onclick="closeModal('modal-delete')">&#215;</button>
+    </div>
+    <div class="modal-body">
+      <p style="color:var(--text-secondary);margin-bottom:12px">You are about to deactivate:</p>
+      <div style="font-weight:600;color:var(--white);margin-bottom:16px" id="delete-company-name">—</div>
+
+      <div class="notice-box">
+        Even after deletion, this company remains permanently linked to your name in the Franzengueric business registry. You may sell the rights to another party.
+      </div>
+
+      <div class="fine-banner" style="display:none" id="delete-fine-warn">
+        You have exceeded the 3-company registration limit. A <strong>€500 fine</strong> will apply to your account upon this registration.
+      </div>
+
+      <p style="color:var(--text-muted);font-size:12px">This action deactivates the company. The registry record is permanent.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-delete')">Cancel</button>
+      <button class="btn btn-danger" style="flex:1" onclick="confirmDelete()">Yes, Deactivate</button>
+    </div>
+  </div>
+</div>
+
+<!-- ──────────────────────────────────────────────
+     SCREEN: ADMIN
+     ────────────────────────────────────────────── -->
+<div id="screen-admin" class="screen">
+  <div class="topbar">
+    <div class="logo-mark">
+      <div class="logo-text">RMCF</div>
+      <div class="admin-badge">Admin</div>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn btn-ghost btn-sm" onclick="adminLogout()">Exit</button>
+    </div>
+  </div>
+
+  <div style="display:flex;border-bottom:1px solid var(--border)">
+    <button class="nav-tab active" id="admin-tab-companies" onclick="adminSwitchTab('companies')">Companies</button>
+    <button class="nav-tab" id="admin-tab-users" onclick="adminSwitchTab('users')">Users</button>
+  </div>
+
+  <div class="scroll-body" style="flex:1">
+
+    <!-- Companies tab -->
+    <div id="admin-companies-panel">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div class="section-label" style="margin-bottom:0">All Companies</div>
+        <button class="btn btn-ghost btn-sm" onclick="adminLoadCompanies()">Refresh</button>
+      </div>
+      <div style="margin-bottom:10px">
+        <input id="admin-search" type="text" placeholder="Search by name, owner, code..." oninput="adminFilterCompanies()">
+      </div>
+      <div id="admin-companies-list">
+        <div class="loading-center"><div class="spinner"></div></div>
+      </div>
+    </div>
+
+    <!-- Users tab -->
+    <div id="admin-users-panel" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div class="section-label" style="margin-bottom:0">Registered Users</div>
+        <button class="btn btn-ghost btn-sm" onclick="adminLoadUsers()">Refresh</button>
+      </div>
+      <div id="admin-users-list">
+        <div class="loading-center"><div class="spinner"></div></div>
+      </div>
+    </div>
+
+    <div style="height:32px"></div>
+  </div>
+</div>
+
+<!-- ──────────────────────────────────────────────
+     MODAL: ADMIN LOGIN
+     ────────────────────────────────────────────── -->
+<div id="modal-adminlogin" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Admin Access</div>
+      <button class="modal-close" onclick="closeModal('modal-adminlogin')">&#215;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Admin Password</label>
+        <input id="admin-pass-input" type="password">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-adminlogin')">Cancel</button>
+      <button class="btn btn-primary" style="flex:1" onclick="doAdminLogin()">Enter</button>
+    </div>
+  </div>
+</div>
+
+<!-- ──────────────────────────────────────────────
+     MODAL: ADMIN EDIT COMPANY
+     ────────────────────────────────────────────── -->
+<div id="modal-admin-edit" class="modal-overlay" onclick="closeModalIfBg(event,'modal-admin-edit')">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Edit Company</div>
+      <button class="modal-close" onclick="closeModal('modal-admin-edit')">&#215;</button>
+    </div>
+    <div class="modal-body" id="admin-edit-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-admin-edit')">Cancel</button>
+      <button class="btn btn-primary" style="flex:1" onclick="adminSaveEdit()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- Hidden admin trigger (tap logo 5x) -->
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// CONFIG — replace with your deployed Apps Script URL
+// ══════════════════════════════════════════════════════════════
+const API_URL = 'https://script.google.com/macros/s/AKfycbyBeh0UWM1GoqAy4vvsIJx5_N2ZClwiuh7Q5lln3A7RZ5qY630DNAvC8bOH4ojRl8tW9g/exec';
+
+// ══════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════
+let session = null;        // { telegramId, telegram, firstName, lastName, patronymic }
+let myCompanies = [];
+let allPublicCompanies = [];
+let adminCompanies = [];
+let adminUsers = [];
+let adminCompaniesFiltered = [];
+let deleteTargetId = null;
+let editTargetId = null;
+let staffTags = [];
+let adminLoggedIn = false;
+let logoTapCount = 0;
+
+// ══════════════════════════════════════════════════════════════
+// API
+// ══════════════════════════════════════════════════════════════
+async function api(payload) {
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  const json = await res.json();
+  if (!json.ok) throw new Error(json.error || 'Unknown error');
+  return json.data;
+}
+
+// ══════════════════════════════════════════════════════════════
+// SCREENS
+// ══════════════════════════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+}
+
+// ══════════════════════════════════════════════════════════════
+// TELEGRAM AUTO-AUTH
+// ══════════════════════════════════════════════════════════════
+function initTelegramAuth() {
+  const tg = window.Telegram && window.Telegram.WebApp;
+
+  if (!tg || !tg.initDataUnsafe || !tg.initDataUnsafe.user) {
+    // Not opened inside Telegram (or Telegram blocked the user object)
+    document.getElementById('auth-state-loading').style.display = 'none';
+    document.getElementById('auth-state-error').style.display = 'flex';
+    return;
+  }
+
+  tg.ready();
+  tg.expand();
+
+  const tgUser = tg.initDataUnsafe.user;
+  const telegramId = String(tgUser.id);
+  const telegram = (tgUser.username || '').toLowerCase();
+
+  tgLoginFlow(telegramId, telegram);
+}
+
+async function tgLoginFlow(telegramId, telegram) {
+  try {
+    const data = await api({ action: 'tgLogin', telegramId, telegram });
+    session = {
+      telegramId: data.telegramId,
+      telegram: data.telegram,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      patronymic: data.patronymic
+    };
+    saveSession();
+
+    if (!data.profileComplete) {
+      // First time here — ask for in-game name once, no password
+      document.getElementById('auth-state-loading').style.display = 'none';
+      document.getElementById('panel-onboard').style.display = 'block';
+    } else {
+      enterDashboard();
+    }
+  } catch(e) {
+    document.getElementById('auth-state-loading').style.display = 'none';
+    document.getElementById('auth-state-error').style.display = 'flex';
+    document.querySelector('#auth-state-error .tg-error-box').textContent =
+      'Could not connect: ' + e.message;
+  }
+}
+
+async function doCompleteProfile() {
+  const firstName = document.getElementById('ob-fn').value.trim();
+  const lastName  = document.getElementById('ob-ln').value.trim();
+  const patronymic = document.getElementById('ob-pat').value.trim();
+
+  if (!firstName || !lastName) { toast('Fill in your first and last name', 'error'); return; }
+
+  try {
+    const data = await api({
+      action: 'completeProfile',
+      telegramId: session.telegramId,
+      firstName, lastName, patronymic
+    });
+    session.firstName = data.firstName;
+    session.lastName = data.lastName;
+    session.patronymic = data.patronymic;
+    saveSession();
+    enterDashboard();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+// ══════════════════════════════════════════════════════════════
+// SESSION PERSIST (cache only — telegramId is re-verified by Telegram
+// itself every time the Mini App is opened, this is just to avoid a
+// flash of the loading screen on quick re-opens)
+// ══════════════════════════════════════════════════════════════
+function saveSession() {
+  try { localStorage.setItem('rmcf_session', JSON.stringify(session)); } catch(e) {}
+}
+function loadSession() {
+  try {
+    const s = localStorage.getItem('rmcf_session');
+    if (s) session = JSON.parse(s);
+  } catch(e) {}
+}
+
+// ══════════════════════════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════════════════════════
+function enterDashboard() {
+  document.getElementById('dash-name').textContent =
+    session.firstName + ' ' + session.lastName;
+  document.getElementById('dash-handle').textContent = '@' + session.telegram;
+  showScreen('dashboard');
+  loadMyCompanies();
+  loadPublicCompanies();
+}
+
+async function loadMyCompanies() {
+  document.getElementById('companies-list').innerHTML =
+    '<div class="loading-center"><div class="spinner"></div></div>';
+  try {
+    myCompanies = await api({ action: 'getMyCompanies', telegramID: session.telegramID, password: session.password });
+    renderMyCompanies();
+  } catch(e) {
+    document.getElementById('companies-list').innerHTML =
+      '<div class="empty-state"><p>' + e.message + '</p></div>';
+  }
+}
+
+function renderMyCompanies() {
+  const el = document.getElementById('companies-list');
+  const active = myCompanies.filter(c => c.status === 'active');
+  const inactive = myCompanies.filter(c => c.status !== 'active');
+
+  if (myCompanies.length === 0) {
+    el.innerHTML = '<div class="empty-state"><p>No companies registered yet.</p></div>';
+    return;
+  }
+
+  let html = '';
+  [...active, ...inactive].forEach(c => {
+    const isActive = c.status === 'active';
+    html += `
+    <div class="company-card">
+      <div class="company-card-header">
+        <div class="company-shortname">${esc(c.nameShort)}</div>
+        <div class="company-status ${isActive ? 'active' : 'inactive'}">${isActive ? 'ACTIVE' : 'INACTIVE'}</div>
+      </div>
+      <div class="company-name">${esc(c.nameOriginal)}</div>
+      <div class="company-latin">${esc(c.nameLatin)}</div>
+      <div class="company-meta">
+        <div class="company-meta-item"><strong>Sphere</strong>${esc(c.sphere)}</div>
+        <div class="company-meta-item"><strong>Capital</strong>€${Number(c.capital).toLocaleString()}</div>
+        <div class="company-meta-item"><strong>Address</strong>${esc(c.addressReg)}</div>
+        <div class="company-meta-item"><strong>Registered</strong>${fmtDate(c.createdAt)}</div>
+      </div>
+      <div class="company-actions">
+        <button class="btn btn-secondary btn-sm" onclick="openViewModal('${c.id}')">Details</button>
+        ${isActive ? `
+        <button class="btn btn-secondary btn-sm" onclick="openEditModal('${c.id}')">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="openDeleteModal('${c.id}')">Delete</button>
+        ` : ''}
+      </div>
+    </div>`;
+  });
+  el.innerHTML = html;
+}
+
+async function loadPublicCompanies() {
+  try {
+    allPublicCompanies = await api({ action: 'getAllCompanies' });
+    renderPublicCompanies();
+  } catch(e) {}
+}
+
+function renderPublicCompanies() {
+  const el = document.getElementById('public-list');
+  if (!allPublicCompanies.length) {
+    el.innerHTML = '<div class="empty-state"><p>No active companies in the registry.</p></div>';
+    return;
+  }
+  let html = '';
+  allPublicCompanies.forEach(c => {
+    html += `
+    <div class="company-card">
+      <div class="company-card-header">
+        <div class="company-shortname">${esc(c.nameShort)}</div>
+      </div>
+      <div class="company-name">${esc(c.nameOriginal)}</div>
+      <div class="company-latin">${esc(c.nameLatin)}</div>
+      <div class="company-meta">
+        <div class="company-meta-item"><strong>Sphere</strong>${esc(c.sphere)}</div>
+        <div class="company-meta-item"><strong>Location</strong>${esc(c.addressReg)}</div>
+      </div>
+    </div>`;
+  });
+  el.innerHTML = html;
+}
+
+// ══════════════════════════════════════════════════════════════
+// CREATE COMPANY
+// ══════════════════════════════════════════════════════════════
+function openCreateModal() {
+  // Reset form
+  ['c-nameOriginal','c-nameLatin','c-nameShort','c-addressReg','c-capital'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('c-sphere').value = '';
+  document.getElementById('address-list').innerHTML = `
+    <div class="multi-input-row">
+      <input type="text" placeholder="Address of physical location" class="phys-addr">
+      <button class="btn btn-ghost" onclick="addAddressRow()">+</button>
+    </div>`;
+  staffTags = [];
+  renderStaffTags();
+  document.querySelectorAll('#modal-create input[type=checkbox]').forEach(cb => cb.checked = false);
+  openModal('modal-create');
+}
+
+function addAddressRow() {
+  const list = document.getElementById('address-list');
+  const row = document.createElement('div');
+  row.className = 'multi-input-row';
+  row.innerHTML = `<input type="text" placeholder="Address" class="phys-addr"><button class="btn btn-ghost" onclick="this.parentElement.remove()">&#215;</button>`;
+  list.appendChild(row);
+}
+
+// Staff tag input
+document.addEventListener('DOMContentLoaded', () => {
+  const inp = document.getElementById('staff-input');
+  if (inp) {
+    inp.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ',') {
+        e.preventDefault();
+        addStaffTag(inp.value);
+        inp.value = '';
+      } else if (e.key === 'Backspace' && !inp.value && staffTags.length) {
+        staffTags.pop();
+        renderStaffTags();
+      }
+    });
+  }
+
+  // Logo tap admin
+  const logoBox = document.querySelector('.landing-logo-box');
+  if (logoBox) {
+    logoBox.addEventListener('click', () => {
+      logoTapCount++;
+      if (logoTapCount >= 5) { logoTapCount = 0; openModal('modal-adminlogin'); }
+    });
+  }
+
+  loadSession();
+  if (session) enterDashboard();
+});
+
+function addStaffTag(val) {
+  val = val.trim().toLowerCase().replace('@','').replace(',','');
+  if (!val) return;
+  if (!staffTags.includes(val)) staffTags.push(val);
+  renderStaffTags();
+}
+
+function renderStaffTags() {
+  const container = document.getElementById('staff-tags-container');
+  const inp = document.getElementById('staff-input');
+  // Remove old tags
+  container.querySelectorAll('.tag').forEach(t => t.remove());
+  staffTags.forEach((tag, i) => {
+    const el = document.createElement('div');
+    el.className = 'tag';
+    el.innerHTML = `@${tag}<span class="tag-remove" onclick="removeStaffTag(${i})">&#215;</span>`;
+    container.insertBefore(el, inp);
+  });
+}
+
+function removeStaffTag(i) {
+  staffTags.splice(i, 1);
+  renderStaffTags();
+}
+
+async function doCreateCompany() {
+  const nameOriginal = document.getElementById('c-nameOriginal').value.trim();
+  const nameLatin    = document.getElementById('c-nameLatin').value.trim();
+  const nameShort    = document.getElementById('c-nameShort').value.trim();
+  const addressReg   = document.getElementById('c-addressReg').value.trim();
+  const capital      = document.getElementById('c-capital').value;
+  const sphere       = document.getElementById('c-sphere').value;
+
+  const physAddrs = [...document.querySelectorAll('.phys-addr')]
+    .map(i => i.value.trim()).filter(Boolean);
+
+  const licenses = [...document.querySelectorAll('#modal-create input[type=checkbox]:checked')]
+    .map(cb => cb.value);
+
+  const staff = staffTags.length ? staffTags.map(t => '@' + t) : ['No staff'];
+
+  if (!nameOriginal || !nameLatin || !nameShort || !addressReg || !capital || !sphere) {
+    toast('Fill in all required fields', 'error'); return;
+  }
+
+  try {
+    await api({
+      action: 'createCompany',
+      telegramId: session.telegramId,
+      telegram: session.telegram,
+      nameOriginal, nameLatin, nameShort, addressReg,
+      addressPhysical: physAddrs,
+      capital: Number(capital),
+      sphere,
+      staff,
+      licenses
+    });
+    closeModal('modal-create');
+    toast('Company registered successfully', 'success');
+    loadMyCompanies();
+    loadPublicCompanies();
+  } catch(e) {
+    if (e.message.startsWith('FINE_REQUIRED:')) {
+      toast(e.message.replace('FINE_REQUIRED:',''), 'error');
+    } else {
+      toast(e.message, 'error');
+    }
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// VIEW COMPANY DETAILS
+// ══════════════════════════════════════════════════════════════
+function openViewModal(id) {
+  const c = myCompanies.find(x => x.id === id);
+  if (!c) return;
+
+  document.getElementById('view-modal-title').textContent = c.nameShort;
+
+  const rows = [
+    ['Original Name', c.nameOriginal],
+    ['Latin Name', c.nameLatin],
+    ['Short Code', c.nameShort],
+    ['Status', c.status.toUpperCase()],
+    ['Registered Address', c.addressReg],
+    ['Physical Location(s)', (c.addressPhysical || '').replace(/\s*\|\s*/g, '\n')],
+    ['Capital', '€' + Number(c.capital).toLocaleString()],
+    ['Field of Activity', c.sphere],
+    ['Staff', c.staff],
+    ['Licenses', c.licenses || 'None'],
+    ['Registered On', fmtDate(c.createdAt)],
+    ['Last Updated', fmtDate(c.updatedAt)],
+  ];
+
+  document.getElementById('view-modal-body').innerHTML = rows.map(([l, v]) => `
+    <div class="info-row">
+      <div class="info-row-label">${l}</div>
+      <div class="info-row-value">${esc(String(v || '—'))}</div>
+    </div>`).join('');
+
+  document.getElementById('view-modal-footer').innerHTML = `
+    <button class="btn btn-secondary" onclick="closeModal('modal-view')">Close</button>`;
+
+  openModal('modal-view');
+}
+
+// ══════════════════════════════════════════════════════════════
+// EDIT COMPANY
+// ══════════════════════════════════════════════════════════════
+function openEditModal(id) {
+  const c = myCompanies.find(x => x.id === id);
+  if (!c) return;
+  editTargetId = id;
+
+  document.getElementById('view-modal-title').textContent = 'Edit — ' + c.nameShort;
+
+  document.getElementById('view-modal-body').innerHTML = `
+    <div class="form-group"><label>Original Name</label>
+      <input id="edit-nameOriginal" type="text" value="${esc(c.nameOriginal)}"></div>
+    <div class="form-group"><label>Latin Name</label>
+      <input id="edit-nameLatin" type="text" value="${esc(c.nameLatin)}"></div>
+    <div class="form-group"><label>Short Code (3–4 Latin letters)</label>
+      <input id="edit-nameShort" type="text" value="${esc(c.nameShort)}" maxlength="4"></div>
+    <div class="form-group"><label>Registered Address</label>
+      <input id="edit-addressReg" type="text" value="${esc(c.addressReg)}"></div>
+    <div class="form-group"><label>Physical Location(s)</label>
+      <textarea id="edit-addressPhysical">${esc((c.addressPhysical||'').replace(/\s*\|\s*/g,'\n'))}</textarea>
+      <div class="form-hint">One address per line</div></div>
+    <div class="form-group"><label>Capital (min €100)</label>
+      <input id="edit-capital" type="number" min="100" value="${c.capital}"></div>
+    <div class="form-group"><label>Field of Activity</label>
+      <input id="edit-sphere" type="text" value="${esc(c.sphere)}"></div>
+    <div class="form-group"><label>Staff</label>
+      <input id="edit-staff" type="text" value="${esc(c.staff)}"></div>
+    <div class="form-group"><label>Licenses</label>
+      <input id="edit-licenses" type="text" value="${esc(c.licenses||'')}"></div>
+  `;
+
+  document.getElementById('view-modal-footer').innerHTML = `
+    <button class="btn btn-secondary" onclick="closeModal('modal-view')">Cancel</button>
+    <button class="btn btn-primary" style="flex:1" onclick="doEditCompany()">Save</button>`;
+
+  openModal('modal-view');
+}
+
+async function doEditCompany() {
+  const updates = {
+    nameOriginal:    document.getElementById('edit-nameOriginal').value.trim(),
+    nameLatin:       document.getElementById('edit-nameLatin').value.trim(),
+    nameShort:       document.getElementById('edit-nameShort').value.trim(),
+    addressReg:      document.getElementById('edit-addressReg').value.trim(),
+    addressPhysical: document.getElementById('edit-addressPhysical').value.trim().split('\n').filter(Boolean).join(' | '),
+    capital:         Number(document.getElementById('edit-capital').value),
+    sphere:          document.getElementById('edit-sphere').value.trim(),
+    staff:           document.getElementById('edit-staff').value.trim(),
+    licenses:        document.getElementById('edit-licenses').value.trim(),
+  };
+  try {
+    await api({ action: 'updateCompany', telegram: session.telegram, password: session.password, companyId: editTargetId, updates });
+    closeModal('modal-view');
+    toast('Company updated', 'success');
+    loadMyCompanies();
+    loadPublicCompanies();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+// ══════════════════════════════════════════════════════════════
+// DELETE COMPANY
+// ══════════════════════════════════════════════════════════════
+function openDeleteModal(id) {
+  const c = myCompanies.find(x => x.id === id);
+  if (!c) return;
+  deleteTargetId = id;
+  document.getElementById('delete-company-name').textContent = c.nameOriginal + ' (' + c.nameShort + ')';
+
+  // Show fine warning if they already have 3+ total
+  const total = myCompanies.length;
+  document.getElementById('delete-fine-warn').style.display = total >= 3 ? 'block' : 'none';
+
+  openModal('modal-delete');
+}
+
+async function confirmDelete() {
+  if (!deleteTargetId) return;
+  try {
+    const result = await api({ action: 'deleteCompany', telegram: session.telegram, password: session.password, companyId: deleteTargetId });
+    closeModal('modal-delete');
+    toast('Company deactivated. Registry record remains.', 'success');
+    deleteTargetId = null;
+    loadMyCompanies();
+    loadPublicCompanies();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+// ══════════════════════════════════════════════════════════════
+// ADMIN
+// ══════════════════════════════════════════════════════════════
+let adminPassword = '';
+
+function openAdminPanel() {
+  openModal('modal-adminlogin');
+}
+
+async function doAdminLogin() {
+  adminPassword = document.getElementById('admin-pass-input').value;
+  try {
+    await api({ action: 'adminLogin', adminPassword });
+    adminLoggedIn = true;
+    closeModal('modal-adminlogin');
+    document.getElementById('admin-pass-input').value = '';
+    showScreen('admin');
+    adminLoadCompanies();
+  } catch(e) { toast('Wrong admin password', 'error'); }
+}
+
+function adminLogout() {
+  adminLoggedIn = false;
+  adminPassword = '';
+  showScreen('dashboard');
+}
+
+function adminSwitchTab(tab) {
+  document.getElementById('admin-companies-panel').style.display = tab === 'companies' ? 'block' : 'none';
+  document.getElementById('admin-users-panel').style.display = tab === 'users' ? 'block' : 'none';
+  document.querySelectorAll('[id^=admin-tab-]').forEach(t => t.classList.remove('active'));
+  document.getElementById('admin-tab-' + tab).classList.add('active');
+  if (tab === 'users') adminLoadUsers();
+}
+
+async function adminLoadCompanies() {
+  document.getElementById('admin-companies-list').innerHTML =
+    '<div class="loading-center"><div class="spinner"></div></div>';
+  try {
+    adminCompanies = await api({ action: 'adminGetAll', adminPassword });
+    adminCompaniesFiltered = [...adminCompanies];
+    renderAdminCompanies();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+function adminFilterCompanies() {
+  const q = document.getElementById('admin-search').value.toLowerCase();
+  adminCompaniesFiltered = adminCompanies.filter(c =>
+    [c.nameOriginal, c.nameLatin, c.nameShort, c.ownerTelegram, c.sphere]
+      .join(' ').toLowerCase().includes(q)
+  );
+  renderAdminCompanies();
+}
+
+function renderAdminCompanies() {
+  const el = document.getElementById('admin-companies-list');
+  if (!adminCompaniesFiltered.length) {
+    el.innerHTML = '<div class="empty-state"><p>No companies found.</p></div>';
+    return;
+  }
+  let html = '';
+  adminCompaniesFiltered.forEach(c => {
+    const isActive = c.status === 'active';
+    html += `
+    <div class="company-card">
+      <div class="company-card-header">
+        <div class="company-shortname">${esc(c.nameShort)}</div>
+        <div class="company-status ${isActive ? 'active' : 'inactive'}">${(c.status||'').toUpperCase()}</div>
+      </div>
+      <div class="company-name">${esc(c.nameOriginal)}</div>
+      <div class="company-latin">${esc(c.nameLatin)}</div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--text-muted);margin-bottom:8px">
+        Owner: @${esc(c.ownerTelegram)}
+      </div>
+      <div class="company-meta">
+        <div class="company-meta-item"><strong>Sphere</strong>${esc(c.sphere)}</div>
+        <div class="company-meta-item"><strong>Capital</strong>€${Number(c.capital||0).toLocaleString()}</div>
+        <div class="company-meta-item"><strong>Staff</strong>${esc(c.staff||'—')}</div>
+        <div class="company-meta-item"><strong>Licenses</strong>${esc(c.licenses||'None')}</div>
+      </div>
+      <div class="company-actions">
+        <button class="btn btn-secondary btn-sm" onclick="adminOpenEdit('${c.id}')">Edit</button>
+        <button class="btn btn-secondary btn-sm" onclick="adminToggleStatus('${c.id}','${c.status}')">
+          ${isActive ? 'Deactivate' : 'Reactivate'}
+        </button>
+        <button class="btn btn-danger btn-sm" onclick="adminHardDelete('${c.id}','${esc(c.nameShort)}')">Hard Delete</button>
+      </div>
+    </div>`;
+  });
+  el.innerHTML = html;
+}
+
+async function adminLoadUsers() {
+  document.getElementById('admin-users-list').innerHTML =
+    '<div class="loading-center"><div class="spinner"></div></div>';
+  try {
+    adminUsers = await api({ action: 'adminGetUsers', adminPassword });
+    renderAdminUsers();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+function renderAdminUsers() {
+  const el = document.getElementById('admin-users-list');
+  if (!adminUsers.length) {
+    el.innerHTML = '<div class="empty-state"><p>No users.</p></div>';
+    return;
+  }
+  let html = '';
+  adminUsers.forEach(u => {
+    const userCompanies = adminCompanies.filter(c => c.ownerTelegram === u.telegram);
+    const active = userCompanies.filter(c => c.status === 'active').length;
+    html += `
+    <div class="company-card">
+      <div class="company-card-header">
+        <div class="company-shortname" style="font-size:12px">@${esc(u.telegram)}</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text-muted)">${active}/3 active</div>
+      </div>
+      <div class="company-name">${esc(u.firstName)} ${esc(u.lastName)}${u.patronymic ? ' ' + esc(u.patronymic) : ''}</div>
+      <div class="company-latin" style="margin-bottom:10px">${fmtDate(u.createdAt)}</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px">
+        Companies: ${userCompanies.length} total, ${active} active
+      </div>
+      <div class="company-actions">
+        <button class="btn btn-danger btn-sm" onclick="adminDeleteUser('${u.id}','${esc(u.telegram)}')">Delete User</button>
+      </div>
+    </div>`;
+  });
+  el.innerHTML = html;
+}
+
+let adminEditId = null;
+
+function adminOpenEdit(id) {
+  const c = adminCompanies.find(x => x.id === id);
+  if (!c) return;
+  adminEditId = id;
+
+  document.getElementById('admin-edit-body').innerHTML = `
+    <div class="form-group"><label>Original Name</label>
+      <input id="ae-nameOriginal" type="text" value="${esc(c.nameOriginal)}"></div>
+    <div class="form-group"><label>Latin Name</label>
+      <input id="ae-nameLatin" type="text" value="${esc(c.nameLatin)}"></div>
+    <div class="form-group"><label>Short Code</label>
+      <input id="ae-nameShort" type="text" value="${esc(c.nameShort)}" maxlength="4"></div>
+    <div class="form-group"><label>Registered Address</label>
+      <input id="ae-addressReg" type="text" value="${esc(c.addressReg||'')}"></div>
+    <div class="form-group"><label>Physical Location(s)</label>
+      <textarea id="ae-addressPhysical">${esc((c.addressPhysical||'').replace(/\s*\|\s*/g,'\n'))}</textarea></div>
+    <div class="form-group"><label>Capital</label>
+      <input id="ae-capital" type="number" value="${c.capital}"></div>
+    <div class="form-group"><label>Sphere</label>
+      <input id="ae-sphere" type="text" value="${esc(c.sphere||'')}"></div>
+    <div class="form-group"><label>Owner Telegram</label>
+      <input id="ae-owner" type="text" value="${esc(c.ownerTelegram||'')}"></div>
+    <div class="form-group"><label>Staff</label>
+      <input id="ae-staff" type="text" value="${esc(c.staff||'')}"></div>
+    <div class="form-group"><label>Licenses</label>
+      <input id="ae-licenses" type="text" value="${esc(c.licenses||'')}"></div>
+    <div class="form-group"><label>Status</label>
+      <select id="ae-status">
+        <option value="active" ${c.status==='active'?'selected':''}>active</option>
+        <option value="inactive" ${c.status==='inactive'?'selected':''}>inactive</option>
+      </select></div>
+  `;
+  openModal('modal-admin-edit');
+}
+
+async function adminSaveEdit() {
+  const updates = {
+    nameOriginal:    document.getElementById('ae-nameOriginal').value.trim(),
+    nameLatin:       document.getElementById('ae-nameLatin').value.trim(),
+    nameShort:       document.getElementById('ae-nameShort').value.trim().toUpperCase(),
+    addressReg:      document.getElementById('ae-addressReg').value.trim(),
+    addressPhysical: document.getElementById('ae-addressPhysical').value.trim().split('\n').join(' | '),
+    capital:         Number(document.getElementById('ae-capital').value),
+    sphere:          document.getElementById('ae-sphere').value.trim(),
+    ownerTelegram:   document.getElementById('ae-owner').value.trim(),
+    staff:           document.getElementById('ae-staff').value.trim(),
+    licenses:        document.getElementById('ae-licenses').value.trim(),
+    status:          document.getElementById('ae-status').value,
+  };
+  try {
+    await api({ action: 'adminUpdateCompany', adminPassword, companyId: adminEditId, updates });
+    closeModal('modal-admin-edit');
+    toast('Company updated', 'success');
+    adminLoadCompanies();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function adminToggleStatus(id, currentStatus) {
+  const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+  try {
+    await api({ action: 'adminUpdateCompany', adminPassword, companyId: id, updates: { status: newStatus } });
+    toast('Status changed to ' + newStatus, 'success');
+    adminLoadCompanies();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function adminHardDelete(id, name) {
+  if (!confirm(`Permanently delete "${name}" from the registry? This cannot be undone.`)) return;
+  if (!confirm('Are you absolutely sure? This will remove all records.')) return;
+  try {
+    await api({ action: 'adminDeleteCompany', adminPassword, companyId: id, hard: true });
+    toast('Company permanently deleted', 'success');
+    adminLoadCompanies();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function adminDeleteUser(id, tg) {
+  if (!confirm(`Delete user @${tg}? Their companies will remain but be unlinked.`)) return;
+  try {
+    await api({ action: 'adminDeleteUser', adminPassword, userId: id });
+    toast('User deleted', 'success');
+    adminLoadUsers();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+// ══════════════════════════════════════════════════════════════
+// MODAL HELPERS
+// ══════════════════════════════════════════════════════════════
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function closeModalIfBg(e, id) { if (e.target.id === id) closeModal(id); }
+
+// ══════════════════════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════════════════════
+let toastTimer;
+function toast(msg, type = '') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'show' + (type ? ' ' + type : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3800);
+}
+
+// ══════════════════════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════════════════════
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function fmtDate(iso) {
+  if (!iso) return '—';
+  try { return new Date(iso).toLocaleDateString('en-GB'); } catch { return iso; }
+}
+</script>
+</body>
+</html>
