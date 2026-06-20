@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RMCF — Business Registry</title>
+<title>RMCF — Реестр предприятий</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -102,87 +102,87 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); }
   <div id="screen-auth" class="screen active">
     <div class="landing-hero">
       <div class="landing-logo-box">RMCF</div>
-      <h2 style="font-size:22px; margin-bottom:4px; color:var(--white);">Business Registry</h2>
+      <h2 style="font-size:22px; margin-bottom:4px; color:var(--white);">Реестр предприятий</h2>
       <p style="font-size:11px; font-family:var(--mono); color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em;">RMC en Franzengueric</p>
     </div>
     <div class="auth-tabs">
-      <div id="tab-login" class="auth-tab active" onclick="switchAuthTab('login')">Sign In</div>
-      <div id="tab-register" class="auth-tab" onclick="switchAuthTab('register')">Create Account</div>
+      <div id="tab-login" class="auth-tab active" onclick="switchAuthTab('login')">Войти</div>
+      <div id="tab-register" class="auth-tab" onclick="switchAuthTab('register')">Создать аккаунт</div>
     </div>
     <div class="scroll-body">
       <div id="panel-login" class="auth-panel active">
         <div class="form-group">
-          <label>Username</label>
-          <input id="l-user" type="text" placeholder="Enter your username" autocomplete="username">
+          <label>Имя пользователя</label>
+          <input id="l-user" type="text" autocomplete="username">
         </div>
         <div class="form-group">
-          <label>Password</label>
+          <label>Пароль</label>
           <input id="l-pass" type="password" placeholder="••••••••" autocomplete="current-password">
         </div>
         <div style="height:10px"></div>
-        <button class="btn btn-primary btn-full" onclick="submitLogin()">Sign In to Registry</button>
+        <button class="btn btn-primary btn-full" onclick="submitLogin()">Войти в реестр</button>
         <div style="height:20px"></div>
-        <button class="btn btn-secondary btn-full" onclick="switchToAdmin()">Access Administrative Console</button>
+        <button class="btn btn-secondary btn-full" onclick="switchToAdmin()">Административная консоль</button>
       </div>
       <div id="panel-register" class="auth-panel">
         <div class="form-group">
-          <label>Desired Username</label>
-          <input id="r-user" type="text" placeholder="e.g. janesmith" autocomplete="username">
+          <label>Имя пользователя</label>
+          <input id="r-user" type="text" autocomplete="username">
         </div>
         <div class="form-group">
-          <label>Security Password</label>
-          <input id="r-pass" type="password" placeholder="Choose a safe password" autocomplete="new-password">
+          <label>Пароль</label>
+          <input id="r-pass" type="password" placeholder="••••••••" autocomplete="new-password">
         </div>
         <div class="divider"></div>
         <div class="form-group">
-          <label>Legal First Name</label>
-          <input id="r-fn" type="text" placeholder="In-game character first name">
+          <label>Имя</label>
+          <input id="r-fn" type="text">
         </div>
         <div class="form-group">
-          <label>Legal Last Name</label>
-          <input id="r-ln" type="text" placeholder="In-game character last name">
+          <label>Фамилия</label>
+          <input id="r-ln" type="text">
         </div>
         <div class="form-group">
-          <label>Patronymic Middle Name <span style="text-transform:none; font-weight:400; color:var(--text-muted)">(Optional)</span></label>
-          <input id="r-pat" type="text" placeholder="In-game character middle name">
+          <label>Отчество <span style="text-transform:none; font-weight:400; color:var(--text-muted)">(Необязательно)</span></label>
+          <input id="r-pat" type="text">
         </div>
         <div style="height:10px"></div>
-        <button class="btn btn-primary btn-full" onclick="submitRegister()">Create Registry Profile</button>
+        <button class="btn btn-primary btn-full" onclick="submitRegister()">Зарегистрироваться</button>
       </div>
     </div>
   </div>
 
   <div id="screen-dashboard" class="screen">
     <div class="topbar">
-      <div class="logo-mark"><div class="logo-text">RMCF</div><div class="logo-tag">Registry</div></div>
-      <div><button class="btn btn-ghost btn-sm" onclick="logoutUser()" style="font-family:var(--mono); font-size:11px;">[ LOGOUT ]</button></div>
+      <div class="logo-mark"><div class="logo-text">RMCF</div><div class="logo-tag">Реестр</div></div>
+      <div><button class="btn btn-ghost btn-sm" onclick="logoutUser()" style="font-family:var(--mono); font-size:11px;">[ ВЫХОД ]</button></div>
     </div>
     <div class="scroll-body">
       <div style="margin-bottom: 16px;">
-        <h3 id="dash-welcome-title" style="font-size:18px; color:var(--white);">Welcome</h3>
+        <h3 id="dash-welcome-title" style="font-size:18px; color:var(--white);">Добро пожаловать</h3>
         <p id="dash-welcome-sub" style="font-family:var(--mono); font-size:12px; color:var(--text-muted);"></p>
       </div>
       <div class="divider"></div>
       <div style="display:flex; justify-content:between; align-items:center; margin-bottom:12px;">
-        <span style="font-family:var(--mono); font-size:11px; text-transform:uppercase; color:var(--text-muted); letter-spacing:0.05em;">Your Registered Entities</span>
+        <span style="font-family:var(--mono); font-size:11px; text-transform:uppercase; color:var(--text-muted); letter-spacing:0.05em;">Ваши зарегистрированные компании</span>
       </div>
       <div id="my-companies-list"><div class="loading-center"><div class="spinner"></div></div></div>
       <div style="height:14px"></div>
-      <button class="btn btn-primary btn-full" onclick="openCreateModal()">+ Register New Corporate Entity</button>
+      <button class="btn btn-primary btn-full" onclick="openCreateModal()">+ Зарегистрировать новое юридическое лицо</button>
       <div class="divider"></div>
-      <span style="font-family:var(--mono); font-size:11px; text-transform:uppercase; color:var(--text-muted); letter-spacing:0.05em; display:block; margin-bottom:12px;">Public Corporate Archive (Active Companies)</span>
+      <span style="font-family:var(--mono); font-size:11px; text-transform:uppercase; color:var(--text-muted); letter-spacing:0.05em; display:block; margin-bottom:12px;">Публичный реестр действующих компаний</span>
       <div id="public-companies-list"><div class="loading-center"><div class="spinner"></div></div></div>
     </div>
   </div>
 
   <div id="screen-admin" class="screen">
     <div class="topbar">
-      <div class="logo-mark"><div class="logo-text">RMCF</div><div class="logo-tag">Admin</div></div>
-      <div><button class="btn btn-secondary btn-sm" onclick="exitAdmin()">Exit Admin</button></div>
+      <div class="logo-mark"><div class="logo-text">RMCF</div><div class="logo-tag">Администратор</div></div>
+      <div><button class="btn btn-secondary btn-sm" onclick="exitAdmin()">Выйти</button></div>
     </div>
     <div class="auth-tabs" style="border-bottom: 1px solid var(--border);">
-      <div id="adm-tab-comp" class="auth-tab active" onclick="switchAdminTab('comp')">Companies</div>
-      <div id="adm-tab-users" class="auth-tab" onclick="switchAdminTab('users')">Users</div>
+      <div id="adm-tab-comp" class="auth-tab active" onclick="switchAdminTab('comp')">Компании</div>
+      <div id="adm-tab-users" class="auth-tab" onclick="switchAdminTab('users')">Пользователи</div>
     </div>
     <div class="scroll-body">
       <div id="adm-panel-comp" class="admin-view-panel">
@@ -197,83 +197,83 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); }
   <div id="modal-company" class="modal-overlay" onclick="handleOutsideModalClick(event, 'modal-company')">
     <div class="modal">
       <div class="modal-header">
-        <h3 id="modal-company-title" class="modal-title">Register Company</h3>
+        <h3 id="modal-company-title" class="modal-title">Регистрация компании</h3>
         <button class="modal-close" onclick="closeModal('modal-company')">&times;</button>
       </div>
       <div class="modal-body">
         <input type="hidden" id="c-edit-id">
         <div class="form-group">
-          <label>Original Business Name</label>
-          <input id="c-nameOriginal" type="text" placeholder="e.g. Горная Добыча">
+          <label>Оригинальное название</label>
+          <input id="c-nameOriginal" type="text">
         </div>
         <div class="form-group">
-          <label>Latin Legal Name</label>
-          <input id="c-nameLatin" type="text" placeholder="e.g. Gornaya Dobycha">
+          <label>Латинское юридическое название</label>
+          <input id="c-nameLatin" type="text">
         </div>
         <div class="form-group" id="c-shortcode-group">
-          <label>Short Identifier Code (3-4 Letters)</label>
-          <input id="c-nameShort" type="text" placeholder="e.g. GDC" maxlength="4">
-          <div class="form-hint">Unique business lookup token. Cannot be changed once filed.</div>
+          <label>Краткий идентификатор (3–4 буквы)</label>
+          <input id="c-nameShort" type="text" maxlength="4">
+          <div class="form-hint">Уникальный код поиска. После подачи изменить невозможно.</div>
         </div>
         <div class="form-group">
-          <label>Registered Legal Headquarters Address</label>
-          <input id="c-addressReg" type="text" placeholder="Official legal registration line">
+          <label>Юридический адрес</label>
+          <input id="c-addressReg" type="text">
         </div>
         <div class="form-group">
-          <label>Physical Address / Asset Locations</label>
+          <label>Фактический адрес / расположение активов</label>
           <div id="physical-addresses-wrapper">
             <div class="multi-input-row">
-              <input type="text" class="phys-addr-input" placeholder="Physical site location line">
+              <input type="text" class="phys-addr-input">
               <button class="btn btn-secondary" style="padding:10px" onclick="addPhysicalAddressRow('')">+</button>
             </div>
           </div>
         </div>
         <div class="form-group">
-          <label>Starting Working Capital (€)</label>
+          <label>Начальный рабочий капитал (€)</label>
           <input id="c-capital" type="number" min="100" value="100">
         </div>
         <div class="form-group">
-          <label>Field / Industry Classification</label>
+          <label>Отрасль / классификация деятельности</label>
           <select id="c-sphere">
-            <option>Mining & Resources</option>
-            <option>Trade & Commerce</option>
-            <option>Construction</option>
-            <option>Agriculture</option>
-            <option>Manufacturing</option>
-            <option>Logistics & Transport</option>
-            <option>Banking & Finance</option>
-            <option>Hospitality</option>
-            <option>Other Services</option>
+            <option>Горная добыча и ресурсы</option>
+            <option>Торговля и коммерция</option>
+            <option>Строительство</option>
+            <option>Сельское хозяйство</option>
+            <option>Производство</option>
+            <option>Логистика и транспорт</option>
+            <option>Банки и финансы</option>
+            <option>Гостиничный бизнес</option>
+            <option>Прочие услуги</option>
           </select>
         </div>
         <div class="form-group">
-          <label>Staff Employees</label>
+          <label>Сотрудники</label>
           <div class="tag-container" id="staff-container">
-            <input id="staff-tag-input" type="text" placeholder="Add staff handle and press Enter" style="border:none; padding:4px; background:transparent; flex:1;" onkeydown="handleStaffTagInput(event)">
+            <input id="staff-tag-input" type="text" placeholder="Добавьте сотрудника и нажмите Enter" style="border:none; padding:4px; background:transparent; flex:1;" onkeydown="handleStaffTagInput(event)">
           </div>
         </div>
         <div class="form-group">
-          <label>Operational Licensing Clearances</label>
+          <label>Операционные лицензии</label>
           <div style="display:flex; flex-direction:column; gap:6px; padding:4px 0;">
-            <label style="display:flex; align-items:center; gap:8px; color:var(--text-primary); text-transform:none; font-size:13px; font-weight:400; cursor:pointer;"><input type="checkbox" name="license" value="Alcohol Logistics"> Alcohol Logistics</label>
-            <label style="display:flex; align-items:center; gap:8px; color:var(--text-primary); text-transform:none; font-size:13px; font-weight:400; cursor:pointer;"><input type="checkbox" name="license" value="Financial Clearing"> Financial Clearing Ledger License</label>
-            <label style="display:flex; align-items:center; gap:8px; color:var(--text-primary); text-transform:none; font-size:13px; font-weight:400; cursor:pointer;"><input type="checkbox" name="license" value="Heavy Industrial Extraction"> Heavy Industrial Extraction Permit</label>
+            <label style="display:flex; align-items:center; gap:8px; color:var(--text-primary); text-transform:none; font-size:13px; font-weight:400; cursor:pointer;"><input type="checkbox" name="license" value="Alcohol Logistics"> Лицензия на логистику алкогольной продукции</label>
+            <label style="display:flex; align-items:center; gap:8px; color:var(--text-primary); text-transform:none; font-size:13px; font-weight:400; cursor:pointer;"><input type="checkbox" name="license" value="Financial Clearing"> Лицензия финансового клирингового реестра</label>
+            <label style="display:flex; align-items:center; gap:8px; color:var(--text-primary); text-transform:none; font-size:13px; font-weight:400; cursor:pointer;"><input type="checkbox" name="license" value="Heavy Industrial Extraction"> Разрешение на тяжёлую промышленную добычу</label>
           </div>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" style="flex:1;" onclick="closeModal('modal-company')">Cancel</button>
-        <button class="btn btn-primary" id="btn-submit-company" style="flex:1;" onclick="saveCompanyAction()">File Record</button>
+        <button class="btn btn-secondary" style="flex:1;" onclick="closeModal('modal-company')">Отмена</button>
+        <button class="btn btn-primary" id="btn-submit-company" style="flex:1;" onclick="saveCompanyAction()">Подать заявку</button>
       </div>
     </div>
   </div>
 
-  <div id="toast">Message Container</div>
+  <div id="toast">Сообщение</div>
 </div>
 
 <script>
 // ── CONFIGURATION LINK ───────────────────────────────────────
-const API_URL = 'https://script.google.com/macros/s/AKfycbzbWxpXPp0vQ4P7InsF1e37-xBdjy5FbPHCTp1T39emCiOzFRSobI2Eo-NONucT8n1yyg/exec'; // ← Replace with deployment URL
+const API_URL = 'https://script.google.com/macros/s/AKfycbzbWxpXPp0vQ4P7InsF1e37-xBdjy5FbPHCTp1T39emCiOzFRSobI2Eo-NONucT8n1yyg/exec';
 
 let currentUser = JSON.parse(localStorage.getItem('rmcf_user_session')) || null;
 let currentStaffTags = [];
@@ -293,7 +293,7 @@ async function apiCall(payload) {
       body: JSON.stringify(payload)
     });
     const result = await response.json();
-    if (!result.ok) throw new Error(result.error || 'Server processed an error handling the request');
+    if (!result.ok) throw new Error(result.error || 'Сервер вернул ошибку при обработке запроса');
     return result.data;
   } catch (err) {
     showToast(err.message, 'error');
@@ -323,12 +323,12 @@ async function submitRegister() {
   const patronymic = document.getElementById('r-pat').value.trim();
 
   if(!username || !password || !firstName || !lastName) {
-    return showToast('Please fulfill all critical user credentials files', 'error');
+    return showToast('Заполните все обязательные поля', 'error');
   }
 
   const data = await apiCall({ action: 'register', username, password, firstName, lastName, patronymic });
   if (data) {
-    showToast('Registry identification created! Logging in...', 'success');
+    showToast('Профиль создан. Выполняется вход...', 'success');
     currentUser = data;
     localStorage.setItem('rmcf_user_session', JSON.stringify(data));
     navigateTo('screen-dashboard');
@@ -339,11 +339,11 @@ async function submitRegister() {
 async function submitLogin() {
   const username = document.getElementById('l-user').value.trim();
   const password = document.getElementById('l-pass').value.trim();
-  if(!username || !password) return showToast('Input username and security key values', 'error');
+  if(!username || !password) return showToast('Введите имя пользователя и пароль', 'error');
 
   const data = await apiCall({ action: 'login', username, password });
   if (data) {
-    showToast('Access clear.', 'success');
+    showToast('Доступ разрешён.', 'success');
     currentUser = data;
     localStorage.setItem('rmcf_user_session', JSON.stringify(data));
     navigateTo('screen-dashboard');
@@ -362,7 +362,7 @@ function logoutUser() {
 // ── BUSINESS OVERVIEW VIEWPORTS ──────────────────────────────
 async function loadDashboardData() {
   if (!currentUser) return;
-  document.getElementById('dash-welcome-title').textContent = `Welcome, ${currentUser.firstName} ${currentUser.lastName}`;
+  document.getElementById('dash-welcome-title').textContent = `Добро пожаловать, ${currentUser.firstName} ${currentUser.lastName}`;
   document.getElementById('dash-welcome-sub').textContent = `@${currentUser.username}`;
 
   renderMyCompanies();
@@ -375,7 +375,7 @@ async function renderMyCompanies() {
   try {
     const data = await apiCall({ action: 'getMyCompanies', userId: currentUser.id });
     if(data.length === 0) {
-      container.innerHTML = '<p style="font-size:12px; color:var(--text-muted); text-align:center; padding:16px;">No active corporate business entities associated with this account record profile.</p>';
+      container.innerHTML = '<p style="font-size:12px; color:var(--text-muted); text-align:center; padding:16px;">С данным аккаунтом не связано ни одной активной компании.</p>';
       return;
     }
     container.innerHTML = data.map(c => renderCompanyCardMarkup(c, true)).join('');
@@ -387,7 +387,7 @@ async function renderPublicCompanies() {
   try {
     const data = await apiCall({ action: 'getAllCompanies' });
     if(data.length === 0) {
-      container.innerHTML = '<p style="font-size:12px; color:var(--text-muted); text-align:center; padding:16px;">Registry public ledger archive currently contains no records.</p>';
+      container.innerHTML = '<p style="font-size:12px; color:var(--text-muted); text-align:center; padding:16px;">Публичный реестр пуст.</p>';
       return;
     }
     container.innerHTML = data.map(c => renderCompanyCardMarkup(c, false)).join('');
@@ -406,19 +406,19 @@ function renderCompanyCardMarkup(c, isOwner) {
         <span class="company-shortname">${escapeHtml(c.nameShort)}</span>
       </div>
       <div class="company-meta">
-        <div class="company-meta-item"><strong>Headquarters</strong>${escapeHtml(c.addressReg || 'None Listed')}</div>
-        <div class="company-meta-item"><strong>Working Capital</strong>€${Number(c.capital).toLocaleString()}</div>
-        <div class="company-meta-item"><strong>Industry</strong>${escapeHtml(c.sphere)}</div>
-        <div class="company-meta-item"><strong>Registry Filer Account</strong>@${escapeHtml(c.ownerUsername)}</div>
+        <div class="company-meta-item"><strong>Юридический адрес</strong>${escapeHtml(c.addressReg || 'Не указан')}</div>
+        <div class="company-meta-item"><strong>Рабочий капитал</strong>€${Number(c.capital).toLocaleString()}</div>
+        <div class="company-meta-item"><strong>Отрасль</strong>${escapeHtml(c.sphere)}</div>
+        <div class="company-meta-item"><strong>Аккаунт заявителя</strong>@${escapeHtml(c.ownerUsername)}</div>
       </div>
-      ${c.addressPhysical ? `<div style="font-size:12px; margin-bottom:8px; color:var(--text-secondary);"><strong>Assets Location Focus:</strong> ${escapeHtml(c.addressPhysical)}</div>` : ''}
-      ${c.staff ? `<div style="font-size:11px; margin-bottom:8px; color:var(--text-muted); font-family:var(--mono);">Staff Members: ${escapeHtml(c.staff)}</div>` : ''}
-      ${c.licenses ? `<div style="font-size:11px; color:#5ab87a; font-family:var(--mono);">Licenses: ${escapeHtml(c.licenses)}</div>` : ''}
+      ${c.addressPhysical ? `<div style="font-size:12px; margin-bottom:8px; color:var(--text-secondary);"><strong>Фактическое расположение активов:</strong> ${escapeHtml(c.addressPhysical)}</div>` : ''}
+      ${c.staff ? `<div style="font-size:11px; margin-bottom:8px; color:var(--text-muted); font-family:var(--mono);">Сотрудники: ${escapeHtml(c.staff)}</div>` : ''}
+      ${c.licenses ? `<div style="font-size:11px; color:#5ab87a; font-family:var(--mono);">Лицензии: ${escapeHtml(c.licenses)}</div>` : ''}
       
       ${isOwner && !isInactive ? `
         <div class="company-actions">
-          <button class="btn btn-secondary btn-sm" onclick='openEditModal(${JSON.stringify(c)})'>Modify Profile Parameters</button>
-          <button class="btn btn-danger btn-sm" onclick="deactivateCompanyRecord('${c.id}')">Deactivate Registration File</button>
+          <button class="btn btn-secondary btn-sm" onclick='openEditModal(${JSON.stringify(c)})'>Изменить данные</button>
+          <button class="btn btn-danger btn-sm" onclick="deactivateCompanyRecord('${c.id}')">Деактивировать регистрацию</button>
         </div>
       ` : ''}
     </div>
@@ -427,7 +427,7 @@ function renderCompanyCardMarkup(c, isOwner) {
 
 // ── CREATION & ALTERATION MODAL LOGIC ──────────────────────────
 function openCreateModal() {
-  document.getElementById('modal-company-title').textContent = 'Register Company';
+  document.getElementById('modal-company-title').textContent = 'Регистрация компании';
   document.getElementById('c-edit-id').value = '';
   document.getElementById('c-nameShort').value = '';
   document.getElementById('c-shortcode-group').style.display = 'block';
@@ -440,7 +440,7 @@ function openCreateModal() {
   
   document.getElementById('physical-addresses-wrapper').innerHTML = `
     <div class="multi-input-row">
-      <input type="text" class="phys-addr-input" placeholder="Physical site location line">
+      <input type="text" class="phys-addr-input">
       <button class="btn btn-secondary" style="padding:10px" onclick="addPhysicalAddressRow('')">+</button>
     </div>
   `;
@@ -452,7 +452,7 @@ function openCreateModal() {
 }
 
 function openEditModal(c) {
-  document.getElementById('modal-company-title').textContent = `Amend ${c.nameShort} File`;
+  document.getElementById('modal-company-title').textContent = `Изменить данные ${c.nameShort}`;
   document.getElementById('c-edit-id').value = c.id;
   document.getElementById('c-nameShort').value = c.nameShort;
   document.getElementById('c-shortcode-group').style.display = 'none';
@@ -484,7 +484,7 @@ function addPhysicalAddressRow(value = '') {
   const row = document.createElement('div');
   row.className = 'multi-input-row';
   row.innerHTML = `
-    <input type="text" class="phys-addr-input" value="${escapeHtml(value)}" placeholder="Physical site location line">
+    <input type="text" class="phys-addr-input" value="${escapeHtml(value)}">
     <button class="btn btn-ghost" style="color:#e07070;" onclick="this.parentElement.remove()">✕</button>
   `;
   document.getElementById('physical-addresses-wrapper').appendChild(row);
@@ -548,17 +548,15 @@ async function saveCompanyAction() {
   };
 
   if(!compId) {
-    // New entity registration processing path
     payload.action = 'createCompany';
     payload.nameShort = shortCode;
     await apiCall(payload);
-    showToast('Corporate filing processed successfully', 'success');
+    showToast('Регистрация успешно подана', 'success');
   } else {
-    // Existing data file correction path
     payload.action = 'updateCompany';
     payload.companyId = compId;
     await apiCall({ action: 'updateCompany', userId: currentUser.id, companyId: compId, updates: payload });
-    showToast('Filing system parameters written', 'success');
+    showToast('Данные обновлены', 'success');
   }
   
   closeModal('modal-company');
@@ -566,15 +564,15 @@ async function saveCompanyAction() {
 }
 
 async function deactivateCompanyRecord(id) {
-  if(!confirm('Are you absolutely certain you want to flag this business registration file as legally inactive? This action cannot be undone.')) return;
+  if(!confirm('Вы уверены, что хотите деактивировать эту регистрацию? Это действие необратимо.')) return;
   await apiCall({ action: 'deleteCompany', userId: currentUser.id, companyId: id });
-  showToast('Company record file archived', 'success');
+  showToast('Регистрация деактивирована', 'success');
   loadDashboardData();
 }
 
 // ── ADMINISTRATIVE OPERATIONS SECTION ───────────────────────
 function switchToAdmin() {
-  const pass = prompt('Enter administrative master authorization key:');
+  const pass = prompt('Введите административный ключ доступа:');
   if(!pass) return;
   adminPasswordState = pass;
   navigateTo('screen-admin');
@@ -605,9 +603,9 @@ async function loadAdminCompanies() {
       <table style="width:100%; border-collapse:collapse; font-size:11px; margin-top:8px;">
         <thead>
           <tr style="border-bottom:1px solid var(--border); text-align:left;">
-            <th style="padding:6px;">Code/Name</th>
-            <th style="padding:6px;">Status</th>
-            <th style="padding:6px; text-align:right;">Actions</th>
+            <th style="padding:6px;">Код / Название</th>
+            <th style="padding:6px;">Статус</th>
+            <th style="padding:6px; text-align:right;">Действия</th>
           </tr>
         </thead>
         <tbody>
@@ -616,7 +614,7 @@ async function loadAdminCompanies() {
               <td style="padding:8px var(--r);"><strong>[${escapeHtml(c.nameShort)}]</strong><br>${escapeHtml(c.nameLatin)}</td>
               <td style="padding:8px var(--r); color:${c.status === 'active' ? '#5ab87a' : '#e07070'}">${c.status}</td>
               <td style="padding:8px var(--r); text-align:right;">
-                <button class="btn btn-danger btn-sm" style="padding:2px 6px; font-size:10px;" onclick="adminPurgeCompany('${c.id}')">Delete</button>
+                <button class="btn btn-danger btn-sm" style="padding:2px 6px; font-size:10px;" onclick="adminPurgeCompany('${c.id}')">Удалить</button>
               </td>
             </tr>
           `).join('')}
@@ -635,9 +633,9 @@ async function loadAdminUsers() {
       <table style="width:100%; border-collapse:collapse; font-size:11px; margin-top:8px;">
         <thead>
           <tr style="border-bottom:1px solid var(--border); text-align:left;">
-            <th style="padding:6px;">User Handle</th>
-            <th style="padding:6px;">Legal Profile Identity Name</th>
-            <th style="padding:6px; text-align:right;">Actions</th>
+            <th style="padding:6px;">Пользователь</th>
+            <th style="padding:6px;">ФИО</th>
+            <th style="padding:6px; text-align:right;">Действия</th>
           </tr>
         </thead>
         <tbody>
@@ -646,7 +644,7 @@ async function loadAdminUsers() {
               <td style="padding:8px var(--r); font-family:var(--mono);">@${escapeHtml(u.username)}</td>
               <td style="padding:8px var(--r);">${escapeHtml(u.firstName)} ${escapeHtml(u.lastName)}</td>
               <td style="padding:8px var(--r); text-align:right;">
-                <button class="btn btn-danger btn-sm" style="padding:2px 6px; font-size:10px;" onclick="adminEvictUser('${u.id}', '${u.username}')">Evict</button>
+                <button class="btn btn-danger btn-sm" style="padding:2px 6px; font-size:10px;" onclick="adminEvictUser('${u.id}', '${u.username}')">Удалить</button>
               </td>
             </tr>
           `).join('')}
@@ -657,16 +655,16 @@ async function loadAdminUsers() {
 }
 
 async function adminPurgeCompany(id) {
-  if (!confirm('Hard erase this corporation configuration record profile data line forever from sheet?')) return;
+  if (!confirm('Безвозвратно удалить запись об этой компании?')) return;
   await apiCall({ action: 'adminDeleteCompany', adminPassword: adminPasswordState, companyId: id, hard: true });
-  showToast('Record purged completely', 'success');
+  showToast('Запись удалена', 'success');
   loadAdminCompanies();
 }
 
 async function adminEvictUser(id, name) {
-  if (!confirm(`Revoke and purge registration data file for user profile @${name}?`)) return;
+  if (!confirm(`Удалить аккаунт пользователя @${name}?`)) return;
   await apiCall({ action: 'adminDeleteUser', adminPassword: adminPasswordState, userId: id });
-  showToast('Account record evicted', 'success');
+  showToast('Аккаунт удалён', 'success');
   loadAdminUsers();
 }
 
